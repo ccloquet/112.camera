@@ -1,0 +1,18 @@
+Options -Indexes
+DirectoryIndex iam.html
+
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /light/psap.html?/$1 [L,QSA]
+
+
+# Use HTTP Strict Transport Security to force client to use secure connections only
+<ifModule mod_headers.c>
+        Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+</ifModule>
+
+

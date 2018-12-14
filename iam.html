@@ -1,0 +1,159 @@
+<!DOCTYPE html> 
+<!--https://www.webcodegeeks.com/html5/html5-file-upload-example/-->
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+	<style>
+		body
+		{
+			overflow-x:hidden;overflow-y:hidden;font-family:"Lucida Sans Unicode", "Lucida Grande", "Arial", Helvetica, sans-serif; background-color:rgb(16,46,66); color:white; padding:0% 2.5%; height:100%;
+			background-size: 60px 60px;
+			background-image: linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
+		}
+		.streaming_on 
+		{
+			border: 3px solid red;
+			border-radius: 10px;
+		}
+		.center-div
+		{
+			font-size:125%;
+			position: fixed; right: 0;  bottom: 30px;  left: 0;
+			width: 300px;  height: 2.5em;
+			margin-left: auto;
+			margin-right: auto;
+			padding-top:1.5em; 
+  			border-radius: 3px;
+	 		border: 3px solid red; 
+			color:white;
+			background:rgba(255,0,0,.75);
+			text-align:center
+		}
+
+		.blink_me 
+		{
+			animation: blinker 3.5s ease infinite;
+		}
+
+		@keyframes blinker 
+		{
+		  50% { opacity: 0;  }
+		}
+	</style>
+
+	<script	src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.18/peer.min.js"></script>
+	<script src='showme.js?a=4'></script>
+	<script src='params.js?a=4'></script>
+</head>
+<body>
+	<center>
+
+	<br>
+	<div style='font-weight:normal'>Enter your  ✆ number to make a link for the 112 to 📷 through you:</div><br>
+
+	<input id='userid' type='tel' placeholder='eg: +32 123 123 456' style='text-align:center; font-size:2.7em; width:100%;overflow: hidden;  text-overflow: ellipsis; '> 
+	<br>
+	<br>
+	<div style='font-size:2em;border:.1em solid white;padding:.1em; width:100%' onclick='peer_init()'>GO</div><br> 
+	<div id='text_for_112'>DEMO ONLY - NOT FOR REAL USE - I UNDERSTAND THE RISKS</div>
+	
+	<br>
+	<video height="350" autoplay id="video-0" style="border-radius:10px; display:none"></video><br> <!-- VIDEO ELEMENT FOR WEBRTC -->
+	</center>
+	<div class='center-div blink_me' id='waiting' style='display:none'>WAITING FOR CONNEXION</div>
+
+	
+	<script>
+ 
+	var peer         = null;
+	var video 	 = document.querySelector('video');
+
+	// function: initialize peer & mediastream
+	function peer_init()
+	{	
+		var userid       = parseInt($('#userid').val()); 
+
+		if (!validate_userid(userid)) 
+		{
+			error_msg();
+			return false;
+		}
+		
+		var mypeerid     = userid + '-1'	 
+		var remotepeerid = userid + '-0'	
+
+		$('#text_for_112').html('Ask the 112 operator to connect on <b>112.camera/' + userid +'</b>')
+		$('#waiting').fadeIn()
+		if (!hasGetUserMedia()) 
+		{
+			return false;
+		}
+
+		$.post(	'query.php', 
+			{
+				action:	'get_ice_servers',
+			},						
+			function(e)					
+			{ 
+				var ice_servers 	= e.ice_servers	
+				var connexion_timeout 	= null;
+				peer_loop()
+ 
+			 	function peer_loop()
+				{
+				peer = new Peer(mypeerid, {config: {iceServers: e.ice_servers}, host:peerjs_url, debug:3, port: 443, secure:true} )
+
+				var heartbeater = makePeerHeartbeater( peer );
+
+				console.log(peer)
+
+				video.classList.remove("streaming_on")
+				if (connexion_timeout != null) clearTimeout(connexion_timeout)
+
+				peer.on('open',  function(id)  
+				{
+					console.log('My peer ID is: ' + id); 
+				});
+
+				peer.on('error', function(err) 
+				{
+					switch(err.type)
+					{
+						case 'peer-unavailable':
+							peer_destroy(function(){video.classList.remove("streaming_on"); setTimeout(peer_loop, 1000); })
+							break;
+						default:
+							error_msg()
+							peer_destroy(function(){video.classList.remove("streaming_on"); })
+							
+					}
+							
+				});
+
+				navigator.mediaDevices.getUserMedia({video: { facingMode: "environment" }, audio:true})
+				.then(function(my_media_stream) 
+				{
+					video.srcObject   = my_media_stream
+					var call 	  = peer.call(remotepeerid,  my_media_stream);	
+					connexion_timeout = setTimeout(function(){ clearTimeout(connexion_timeout); connexion_timeout = null; video.classList.add("streaming_on"); $('#video-0').show(); $('#waiting').hide()}, 7000) 
+				 
+				})
+				.catch(function(err) 
+				{
+					console.log('ERROR', err)
+					peer_destroy(function(){video.classList.remove("streaming_on")})
+				});
+				}
+			}, 'json');
+	}
+	
+	</script>
+    </body>
+</html>
+
+
+

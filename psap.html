@@ -1,0 +1,110 @@
+ <!DOCTYPE html>
+<html style='background:#209387;'>
+<head>
+<title>Poppy Show Me</title>
+<meta charset='utf-8'>
+<meta name="referrer" 	content="origin" />
+<meta name='viewport' 	content='width=device-width,height=device-height,initial-scale=1.0,maximum-scale=1.0, viewport-fit=cover'>
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<style>
+	body 		 { background: #209387; color: #c3e0dd; font-family: Roboto, Verdana, 'Lucida Sans', Helvetica, Arial, 'Lucida Grande', sans-serif; font-weight: 400; font-size: 24px; line-height: 18px; padding: 0; margin: 0; text-align: center;}
+	@media only screen and (max-width: 700px) { .wrap { padding: 15px; } }
+	h1 		 { text-align: center; margin: 40px 0; font-size: 22px; font-weight: bold; color: #666; }
+	.flex_display	 { display: flex;  justify-content: center; flex-wrap: wrap; }
+	a		 { color:#c3e0dd }
+ 
+	.center-div
+	{
+		font-size:150%;
+		position: fixed;	top: 0;  right: 0;  bottom: 0;  left: 0;
+		width: 300px;  height: 2.5em;
+		margin: auto;
+		padding-top:1.5em; 
+  		border-radius: 3px;
+ 		border: 3px solid red; 
+		color:white;
+		background:rgba(255,0,0,.75)
+	}
+
+</style>
+
+</head>
+<body>
+<div style='margin:2em 0;font-family:Verdana'>
+	<span style='color:#cd3233;background:rgba(255,255,255, .5); padding:3px 6px'>POPPY 112.CAMERA - DEMO ONLY - NOT FOR REAL USE</span>
+</div>
+ 
+<div id='live'   class='flex_display'></div> 
+
+<div style='background:#209387; color:black; position:fixed; bottom:0px;left:0; width:100%; padding-bottom:0; text-align:center;font-size:12px'>&copy; <a href='mailto:info@my-poppy.eu'>info@my-poppy.eu</a> & GitHub project contributors - <a href='https://github.com/ccloquet/showme' target='_blank'>github.com/ccloquet/showme</a> - MIT Licence</div>
+
+<div class='center-div' id='error_box' style='display:none'></div>
+
+</body>
+</html>
+
+<script	src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.18/peer.min.js"></script>
+<script src='params.js'></script>
+<script src='showme.js?a=5'></script>
+<script>
+	var userid 	 = get_userid();	// SHOULD BE an international phone number format
+	var query_php    = 'query.php';
+	var peer	 = null		
+
+	init(userid)
+
+	function init(userid)
+	{	
+		if (!validate_userid(userid)) 
+		{
+			//error_msg();
+			return false;
+		}
+
+		$.post(	query_php,
+		{
+			action:	'get_ice_servers',
+		},						
+		function(e)					
+		{
+			if (!hasGetUserMedia()) return false;
+
+			var ice_servers = e.ice_servers				 
+			var mypeerid     = userid + '-0'	 
+			var remotepeerid = userid + '-1'	
+
+			$('#live').append('<div><video style="border-radius:10px; margin:0 10px" height="640" id="video-'+mypeerid+'" autoplay></video></div>')
+
+			peer = new Peer(mypeerid, {config: {iceServers: ice_servers}, host: peerjs_url, debug: 3, port: 443, secure: true});
+
+			console.log(peer)
+
+			makePeerHeartbeater( peer );
+			peer.on('error', function(err) { console.log('ERROR', this, err, peer); 	});
+			peer.on('open',  function(id)  { console.log('My peer ID is: ' + id);		});
+
+			peer.on('call', function(call) 
+			{
+				console.log(call.peer,remotepeerid)
+				if (call.peer != remotepeerid)
+				{
+					return false;
+				}
+
+				call.answer();	// no mediastream here -> one way only
+				call.on('stream', function(remote_media_stream) 
+				{
+					var video 	= document.getElementById('video-'+mypeerid); 
+					video.srcObject = remote_media_stream;
+					console.log(video, video.srcObject, remote_media_stream)
+				});
+			});
+		}
+		, 
+		'json');
+	}
+
+</script>
