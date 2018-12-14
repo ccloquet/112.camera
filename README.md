@@ -17,9 +17,13 @@ __Installation__
 
 1. copy the file in a directory on your server
 2. in .htaccess, replace the /light/ by your folder. Pay attention to the HSTS config, and if not sure, remove it
-3. in config.js, maje peerjs_url point to the peer server (eg, on Heroku, see ShowMe)
+3. in config.js, maje peerjs_url point to the peer server (eg, on Heroku, see below)
 4. in params.php, define TWILIO_SID and TWILIO_APIKEY for the TURN & STUN servers
 5. ideally, make a domain name point to that folder, so that the user can call, say, domain.com/123456789
+
+- a Peer Server is needed to use the video set up. You can deploy yours on Heroku using : https://elements.heroku.com/buttons/peers/peerjs-server. The cloud server provided by peerJS is not suitable as it does not support https and there is a risk of identifiers collision. The Heroku server should be dimensioned taking into account the forecasted usage.
+
+- for real world use cases, a STUN & a TURN server is needed. This example uses Twilio's. See eg: https://peerjs.com/docs/#api, https://www.avaya.com/blogs/archives/2014/08/understanding-webrtc-media-connections-ice-stun-and-turn.html & https://www.html5rocks.com/en/tutorials/webrtc/infrastructure, https://www.twilio.com/stun-turn. STUN Server usage is free, but TURN is not.
 
 __Current structure__
 
@@ -30,6 +34,9 @@ __Current structure__
    - params.js & showme.js for common functions
  - .htaccess routes to iam.html or psap.html depending wether or not there is a number after the domain name
  
- 
+ __Dependencies__ (automaticallly loaded from CDN)
+  - peerjs
+  - jQuery
+  - fontAwesome
  
 
