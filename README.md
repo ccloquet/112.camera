@@ -1,6 +1,8 @@
 # 112.camera
 A very simple way for citizens to stream pictures to the 112 PSAP's
 
+This is only intended for test & demo purposes. https://github.com/ccloquet/showme, or a complete integration in existing tools would be better alternatives (easier fot the citizens & the dispatchers).
+
 __Working__
 
 The citizen (most probably a trained citizen) 
@@ -32,11 +34,13 @@ __Current structure__
  - client side: 
    - iam.html for the citizen & psap.html for the PSAP
    - params.js & showme.js for common functions
- - .htaccess routes to iam.html or psap.html depending wether or not there is a number after the domain name
+ - .htaccess routes to iam.html or psap.html depending wether or not there is a number after the domain name:
+   - 112.camera/ -> iam.html
+   - 112.camera/123456789 -> psap.html
  
  __Dependencies__ (automaticallly loaded from CDN)
   - peerjs
   - jQuery
   - fontAwesome
  
-
+See discussions on https://github.com/ccloquet/showme for non-technical issues
