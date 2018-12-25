@@ -3,15 +3,15 @@
 <html>
 
 <head>
+	<title>112.camera</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
 
 	<style>
 		body
 		{
-			overflow-x:hidden;overflow-y:hidden;font-family:"Lucida Sans Unicode", "Lucida Grande", "Arial", Helvetica, sans-serif; background-color:rgb(16,46,66); color:white; padding:0% 2.5%; height:100%;
-			background-size: 60px 60px;
-			background-image: linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
+			overflow-x:hidden;overflow-y:hidden;font-family:"Lucida Sans Unicode", "Lucida Grande", "Arial", Helvetica, sans-serif; background-color:#05466D; color:#eeeeee; padding:0% 2.5%; height:100%;
+		 
 		}
 		.streaming_on 
 		{
@@ -42,6 +42,16 @@
 		{
 		  50% { opacity: 0;  }
 		}
+		#userid
+		{
+			text-align:center; font-size:2.5em; width:100%;overflow: hidden;  text-overflow: ellipsis; 
+			font-family:"Lucida Sans Unicode", "Lucida Grande", "Arial", Helvetica, sans-serif;
+			background:transparent;
+			border:none;
+			border-bottom:1px solid #607d8b;
+			color:#61A0C6;
+			font-weight:normal
+		}
 	</style>
 
 	<script	src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -52,17 +62,20 @@
 <body>
 	<center>
 
-	<br>
-	<div style='font-weight:normal'>Enter your  ✆ number to make a link for the 112 to 📷 through you:</div><br>
+	<div id='config'>
+		<div style='font-weight:normal; margin-top:1.5em'><b style='margin-bottom:.5em'>Help the 112 to 📷  through a 🔗</b><br><br>Enter your ✆ number:</div><br>
 
-	<input id='userid' type='tel' placeholder='eg: +32 123 123 456' style='text-align:center; font-size:2.7em; width:100%;overflow: hidden;  text-overflow: ellipsis; '> 
-	<br>
-	<br>
-	<div style='font-size:2em;border:.1em solid white;padding:.1em; width:100%' onclick='peer_init()'>GO</div><br> 
-	<div id='text_for_112'>DEMO ONLY - NOT FOR REAL USE - I UNDERSTAND THE RISKS</div>
+		<input id='userid' type='tel'  autofocus> 
+		<br>
+		<br>
+		<div style='font-size:2em;border-radius:5px;padding:.1em;background:#AA2900;color:#61A0C6;' onclick='peer_init()'>GO</div><br> 
+	</div>
+	<div id='text_for_112' style='color:#607d8b'>DEMO ONLY - NOT FOR REAL USE<br>I UNDERSTAND THE RISKS</div>
 	
 	<br>
 	<video height="350" autoplay id="video-0" style="border-radius:10px; display:none"></video><br> <!-- VIDEO ELEMENT FOR WEBRTC -->
+	<div id='red_dot' class='blink_me' style='position:fixed; top:3.7em; right:1.5em; font-size:3em;margin-top:-2em;color:red;display:none'>&#9679;</div>	
+	<div id='stop_video' style='position:fixed; bottom:1em; right:0; left:0; text-align:center; display:none'>To stop video: reload the page or close the browser</div>
 	</center>
 	<div class='center-div blink_me' id='waiting' style='display:none'>WAITING FOR CONNEXION</div>
 
@@ -82,12 +95,17 @@
 			error_msg();
 			return false;
 		}
+
+		$('#config').slideUp(1500, function()
+		{
+			$('#text_for_112').html('<br>Ask the 112 operator to connect on<br><b>' + location.href.replace('https://', '') + userid +'</b>').css('color', 'white')
+			$('#waiting').fadeIn()
+		})
 		
 		var mypeerid     = userid + '-1'	 
 		var remotepeerid = userid + '-0'	
 
-		$('#text_for_112').html('Ask the 112 operator to connect on <b>112.camera/' + userid +'</b>')
-		$('#waiting').fadeIn()
+		
 		if (!hasGetUserMedia()) 
 		{
 			return false;
@@ -112,6 +130,7 @@
 				console.log(peer)
 
 				video.classList.remove("streaming_on")
+				$('#red_dot').hide()
 				if (connexion_timeout != null) clearTimeout(connexion_timeout)
 
 				peer.on('open',  function(id)  
@@ -124,11 +143,11 @@
 					switch(err.type)
 					{
 						case 'peer-unavailable':
-							peer_destroy(function(){video.classList.remove("streaming_on"); setTimeout(peer_loop, 1000); })
+							peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide(); setTimeout(peer_loop, 1000); })
 							break;
 						default:
 							error_msg()
-							peer_destroy(function(){video.classList.remove("streaming_on"); })
+							peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide(); })
 							
 					}
 							
@@ -139,13 +158,13 @@
 				{
 					video.srcObject   = my_media_stream
 					var call 	  = peer.call(remotepeerid,  my_media_stream);	
-					connexion_timeout = setTimeout(function(){ clearTimeout(connexion_timeout); connexion_timeout = null; video.classList.add("streaming_on"); $('#video-0').show(); $('#waiting').hide()}, 7000) 
+					connexion_timeout = setTimeout(function(){ clearTimeout(connexion_timeout); connexion_timeout = null; video.classList.add("streaming_on"); $('#red_dot').show(); $('#video-0').show(); $('#stop_video').fadeIn(); $('#waiting').hide()}, 7000) 
 				 
 				})
 				.catch(function(err) 
 				{
 					console.log('ERROR', err)
-					peer_destroy(function(){video.classList.remove("streaming_on")})
+					peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide()})
 				});
 				}
 			}, 'json');
