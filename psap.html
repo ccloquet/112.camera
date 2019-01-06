@@ -76,15 +76,17 @@
 			var mypeerid     = userid + '-0'	 
 			var remotepeerid = userid + '-1'	
 
-			$('#live').append('<div><video style="border-radius:10px; margin:0 10px" height="640" id="video-'+mypeerid+'" autoplay></video></div>')
+			$('#live').append('<div><video style="border-radius:10px; margin:0 10px" height="640" id="video-'+mypeerid+'" muted="muted" controls autoplay></video></div>')	
+			// for Chrome 70+: should be muted to autoplay !
 
 			peer = new Peer(mypeerid, {config: {iceServers: ice_servers}, host: peerjs_url, debug: 3, port: 443, secure: true});
 
 			console.log(peer)
 
-			makePeerHeartbeater( peer );
-			peer.on('error', function(err) { console.log('ERROR', this, err, peer); 	});
-			peer.on('open',  function(id)  { console.log('My peer ID is: ' + id);		});
+			makePeerHeartbeater(peer);
+
+			peer.on('error', function(err) { console.log('ERROR', this, err, peer); });
+			peer.on('open',  function(id)  { console.log('My peer ID is: ' + id);	});
 
 			peer.on('call', function(call) 
 			{
@@ -99,7 +101,7 @@
 				{
 					var video 	= document.getElementById('video-'+mypeerid); 
 					video.srcObject = remote_media_stream;
-					console.log(video, video.srcObject, remote_media_stream)
+					//console.log('STREAMING RECEIVED', video, video.srcObject, remote_media_stream)
 				});
 			});
 		}
