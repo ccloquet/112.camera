@@ -6,6 +6,12 @@
 		return parseInt(location.href.substr(i0+1))
 	}
 
+	function get_param()
+	{
+		var i=0, i0=-1; while (i>=0) {i0=i; i = location.href.indexOf('/', i0+1); }; 
+		return location.href.substr(i0+1)
+	}
+
 	function error_msg(txt)
 	{
 		if (txt == null)
