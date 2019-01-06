@@ -1,7 +1,6 @@
 
-real params/params.js
-real params/params.php
 *.js~
+real params/params.php
+real params/params.js
 *.html~
 .htaccess~
-.iam.html.swp

@@ -47,8 +47,8 @@
 
 <script	src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.18/peer.min.js"></script>
-<script src='params.js'></script>
-<script src='showme.js?a=5'></script>
+<script src='params.js?a=1'></script>
+<script src='showme.js?a=6'></script>
 <script>
 	var userid 	 = get_userid();	// SHOULD BE an international phone number format
 	var query_php    = 'query.php';
@@ -72,9 +72,9 @@
 		{
 			if (!hasGetUserMedia()) return false;
 
-			var ice_servers = e.ice_servers				 
-			var mypeerid     = userid + '-0'	 
-			var remotepeerid = userid + '-1'	
+			var ice_servers = e.ice_servers;				 
+			var mypeerid     = userid + '-0';	 
+			var remotepeerid = userid + '-1';
 
 			$('#live').append('<div><video style="border-radius:10px; margin:0 10px" height="640" id="video-'+mypeerid+'" muted="muted" controls autoplay></video></div>')	
 			// for Chrome 70+: should be muted to autoplay !
@@ -84,6 +84,8 @@
 			console.log(peer)
 
 			makePeerHeartbeater(peer);
+
+			var dataConnection = peer.connect(remotepeerid);	// to ask the remotepeer to reinitiate the connexion
 
 			peer.on('error', function(err) { console.log('ERROR', this, err, peer); });
 			peer.on('open',  function(id)  { console.log('My peer ID is: ' + id);	});

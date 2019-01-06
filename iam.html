@@ -56,8 +56,8 @@
 
 	<script	src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.18/peer.min.js"></script>
-	<script src='showme.js?a=4'></script>
-	<script src='params.js?a=4'></script>
+	<script src='showme.js?a=6'></script>
+	<script src='params.js?a=6'></script>
 </head>
 <body>
 	<center>
@@ -123,11 +123,15 @@
  
 			 	function peer_loop()
 				{
-				peer = new Peer(mypeerid, {config: {iceServers: e.ice_servers}, host:peerjs_url, debug:3, port: 443, secure:true} )
+
+				peer = new Peer(mypeerid, {config: {iceServers: e.ice_servers}, host:peerjs_url, debug:3, port: 443, secure:true} );
+
+				// to reconnect when the peer has been disconnected
+				peer.on('connection', function(e){console.log("A"); peer.destroy(); video.classList.remove("streaming_on"); $('#red_dot').hide(); setTimeout(peer_loop, 1000); console.log(e)})
 
 				var heartbeater = makePeerHeartbeater( peer );
 
-				console.log(peer)
+				//console.log(peer)
 
 				video.classList.remove("streaming_on")
 				$('#red_dot').hide()
@@ -147,7 +151,7 @@
 							break;
 						default:
 							error_msg()
-							peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide(); })
+							peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide();  })
 							
 					}
 							
