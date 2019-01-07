@@ -7,6 +7,7 @@
 <meta name='viewport' 	content='width=device-width,height=device-height,initial-scale=1.0,maximum-scale=1.0, viewport-fit=cover'>
 
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link href='showme.css' rel='stylesheet' />
 
 <style>
 	body 		 { background: #209387; color: #c3e0dd; font-family: Roboto, Verdana, 'Lucida Sans', Helvetica, Arial, 'Lucida Grande', sans-serif; font-weight: 400; font-size: 24px; line-height: 18px; padding: 0; margin: 0; text-align: center;}
@@ -14,20 +15,6 @@
 	h1 		 { text-align: center; margin: 40px 0; font-size: 22px; font-weight: bold; color: #666; }
 	.flex_display	 { display: flex;  justify-content: center; flex-wrap: wrap; }
 	a		 { color:#c3e0dd }
- 
-	.center-div
-	{
-		font-size:150%;
-		position: fixed;	top: 0;  right: 0;  bottom: 0;  left: 0;
-		width: 300px;  height: 2.5em;
-		margin: auto;
-		padding-top:1.5em; 
-  		border-radius: 3px;
- 		border: 3px solid red; 
-		color:white;
-		background:rgba(255,0,0,.75)
-	}
-
 </style>
 
 </head>
@@ -40,7 +27,7 @@
 
 <div style='background:#209387; color:black; position:fixed; bottom:0px;left:0; width:100%; padding-bottom:0; text-align:center;font-size:12px'>&copy; <a href='mailto:info@my-poppy.eu'>info@my-poppy.eu</a> & GitHub project contributors - <a href='https://github.com/ccloquet/showme' target='_blank'>github.com/ccloquet/showme</a> - MIT Licence</div>
 
-<div class='center-div' id='error_box' style='display:none'></div>
+<div class='center-div' id='waiting' style='display:none'></div>
 
 </body>
 </html>
@@ -90,6 +77,9 @@
 			peer.on('error', function(err) { console.log('ERROR', this, err, peer); });
 			peer.on('open',  function(id)  { console.log('My peer ID is: ' + id);	});
 
+			peer.on('close', function(e)  { console.log('CLOSE: ' , e);	});
+			peer.on('disconnected', function(e)  { console.log('DISCONNECTED: ' , e);	});
+
 			peer.on('call', function(call) 
 			{
 				console.log(call.peer,remotepeerid)
@@ -110,5 +100,20 @@
 		, 
 		'json');
 	}
+
+	// handle network deconnections
+
+	function networkChange(e) 
+	{
+		switch(e.type)
+		{
+			case 'offline': $('#waiting').html('No network').addClass('blink_me').show(); break;
+			case 'online':	$('#waiting').removeClass('blink_me').hide(); location.reload();	 break;// should be more advanced, without reloading
+		}
+	}
+
+	// Update the online status icon based on connectivity
+	window.addEventListener('online',  networkChange);
+	window.addEventListener('offline', networkChange);
 
 </script>

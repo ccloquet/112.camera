@@ -7,6 +7,8 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
 
+	<link href='showme.css' rel='stylesheet' />
+
 	<style>
 		body
 		{
@@ -18,30 +20,7 @@
 			border: 3px solid red;
 			border-radius: 10px;
 		}
-		.center-div
-		{
-			font-size:125%;
-			position: fixed; right: 0;  bottom: 30px;  left: 0;
-			width: 300px;  height: 2.5em;
-			margin-left: auto;
-			margin-right: auto;
-			padding-top:1.5em; 
-  			border-radius: 3px;
-	 		border: 3px solid red; 
-			color:white;
-			background:rgba(255,0,0,.75);
-			text-align:center
-		}
-
-		.blink_me 
-		{
-			animation: blinker 3.5s ease infinite;
-		}
-
-		@keyframes blinker 
-		{
-		  50% { opacity: 0;  }
-		}
+	
 		#userid
 		{
 			text-align:center; font-size:2.5em; width:100%;overflow: hidden;  text-overflow: ellipsis; 
@@ -73,7 +52,7 @@
 	<div id='text_for_112' style='color:#607d8b'>DEMO ONLY - NOT FOR REAL USE<br>I UNDERSTAND THE RISKS</div>
 	
 	<br>
-	<video height="350" autoplay id="video-0" style="border-radius:10px; display:none"></video><br> <!-- VIDEO ELEMENT FOR WEBRTC -->
+	<video height="350" autoplay muted="muted" id="video-0" style="border-radius:10px; display:none"></video><br> <!-- VIDEO ELEMENT FOR WEBRTC -->
 	<div id='red_dot' class='blink_me' style='position:fixed; top:3.7em; right:1.5em; font-size:3em;margin-top:-2em;color:red;display:none'>&#9679;</div>	
 	<div id='stop_video' style='position:fixed; bottom:1em; right:0; left:0; text-align:center; display:none'>To stop video: reload the page or close the browser</div>
 	</center>
@@ -127,7 +106,7 @@
 				peer = new Peer(mypeerid, {config: {iceServers: e.ice_servers}, host:peerjs_url, debug:3, port: 443, secure:true} );
 
 				// to reconnect when the peer has been disconnected
-				peer.on('connection', function(e){console.log("A"); peer.destroy(); video.classList.remove("streaming_on"); $('#red_dot').hide(); setTimeout(peer_loop, 1000); console.log(e)})
+				peer.on('connection', reconnect)
 
 				var heartbeater = makePeerHeartbeater( peer );
 
@@ -170,10 +149,31 @@
 					console.log('ERROR', err)
 					peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide()})
 				});
+
+				function reconnect()
+				{
+					peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide(); setTimeout(peer_loop, 1000); })
 				}
+
+				/*function networkChange(e) 
+				{
+					switch(e.type)
+					{
+						case 'offline': $('#waiting').html('No network').addClass('blink_me').show(); 	 break;	// should also handle the case where is waiting for connexion -> no network -> again waiting
+						case 'online':	$('#waiting').removeClass('blink_me').hide(); reconnect();	 break; // reconnect is out of scope -> easyest : reload the page, with the curent number in localStorage (anyway) & immediatestart = 1 + /reset
+					}
+				}
+	
+				// Update the online status icon based on connectivity
+				this.addEventListener('online',  networkChange);
+				this.addEventListener('offline', networkChange);*/
+
+				}
+
+				
+
 			}, 'json');
 	}
-	
 	</script>
     </body>
 </html>
