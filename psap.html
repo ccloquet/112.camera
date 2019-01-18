@@ -6,40 +6,76 @@
 <meta name="referrer" 	content="origin" />
 <meta name='viewport' 	content='width=device-width,height=device-height,initial-scale=1.0,maximum-scale=1.0, viewport-fit=cover'>
 
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-<link href='showme.css' rel='stylesheet' />
+<link href='css/showme.css' 			rel='stylesheet' />
 
 <style>
-	body 		 { background: #209387; color: #c3e0dd; font-family: Roboto, Verdana, 'Lucida Sans', Helvetica, Arial, 'Lucida Grande', sans-serif; font-weight: 400; font-size: 24px; line-height: 18px; padding: 0; margin: 0; text-align: center;}
-	@media only screen and (max-width: 700px) { .wrap { padding: 15px; } }
-	h1 		 { text-align: center; margin: 40px 0; font-size: 22px; font-weight: bold; color: #666; }
-	.flex_display	 { display: flex;  justify-content: center; flex-wrap: wrap; }
-	a		 { color:#c3e0dd }
+	body 		 
+	{
+		background: 	#209387; 
+		color: 		#c3e0dd; 
+		font-family: 	Roboto, Verdana, 'Lucida Sans', Helvetica, Arial, 'Lucida Grande', sans-serif; 
+		font-weight: 	400; 
+		font-size: 	24px; 
+		line-height: 	18px; 
+		padding: 	0; 
+		margin: 	0; 
+		text-align: 	center;
+	}
+
+	@media only screen and (max-width: 700px) 
+	{ 
+		.wrap 
+		{ 
+			padding: 15px; 
+		} 
+	}
+
+	h1 		 
+	{ 
+		text-align: 	center; 
+		margin: 	40px 0; 
+		font-size: 	22px; 
+		font-weight: 	bold; 
+		color: 		#666; 
+	}
+
+	.flex_display	 
+	{ 
+		display: 	flex;  
+		justify-content:center; 
+		flex-wrap: 	wrap; 
+	}
+
+	a		 
+	{ 
+		color:		#c3e0dd;
+	}
 </style>
 
 </head>
 <body>
-<div style='margin:2em 0;font-family:Verdana'>
-	<span style='color:#cd3233;background:rgba(255,255,255, .5); padding:3px 6px'>POPPY 112.CAMERA - DEMO ONLY - NOT FOR REAL USE</span>
-</div>
+	<div style='margin:2em 0;font-family:Verdana'>
+		<span style='color:#cd3233;background:rgba(255,255,255, .5); padding:3px 6px'>POPPY 112.CAMERA - DEMO ONLY - NOT FOR REAL USE</span>
+	</div>
  
-<div id='live'   class='flex_display'></div> 
+	<div id='live' class='flex_display'></div> 
 
-<div style='background:#209387; color:black; position:fixed; bottom:0px;left:0; width:100%; padding-bottom:0; text-align:center;font-size:12px'>&copy; <a href='mailto:info@my-poppy.eu'>info@my-poppy.eu</a> & GitHub project contributors - <a href='https://github.com/ccloquet/showme' target='_blank'>github.com/ccloquet/showme</a> - MIT Licence</div>
+	<div style='background:#209387; color:black; position:fixed; bottom:0px;left:0; width:100%; padding-bottom:0; text-align:center;font-size:12px'>&copy; <a href='mailto:info@my-poppy.eu'>info@my-poppy.eu</a> & GitHub project contributors - <a href='https://github.com/ccloquet/showme' target='_blank'>github.com/ccloquet/showme</a> - MIT Licence</div>
 
-<div class='center-div' id='waiting' style='display:none'></div>
+	<div class='center-div' id='waiting' style='display:none'></div>
 
 </body>
 </html>
 
-<script	src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.18/peer.min.js"></script>
-<script src='params.js?a=1'></script>
-<script src='showme.js?a=6'></script>
+<script	src="lib/jquery-3.3.1.js?a=7"	></script>
+<script src="lib/peerjs-0.3.18.js?a=7"	></script>
+<script src='params.js?a=7'		></script>
+<script src='lib/showme.js?a=7'		></script>
+
 <script>
 	var userid 	 = get_userid();	// SHOULD BE an international phone number format
 	var query_php    = 'query.php';
-	var peer	 = null		
+	var global_peer	 = null		
 
 	init(userid)
 
@@ -57,38 +93,41 @@
 		},						
 		function(e)					
 		{
-			if (!hasGetUserMedia()) return false;
+			if (!hasGetUserMedia()) 
+			{
+				return false;
+			}
 
-			var ice_servers = e.ice_servers;				 
-			var mypeerid     = userid + '-0';	 
-			var remotepeerid = userid + '-1';
+			var ice_servers  = e.ice_servers;				 
+			var mypeerid     = userid + '-00';	// the call taker (me)	-- later, if taken, takes -01 or -02
+			var remotepeerid = userid + '-1';	// the citizen
 
-			$('#live').append('<div><video style="border-radius:10px; margin:0 10px" height="640" id="video-'+mypeerid+'" muted="muted" controls autoplay></video></div>')	
+			$('#live').append('<div><video style="border-radius:10px; margin:0 10px" height="640" id="video-' + mypeerid + '" muted="muted" controls autoplay></video></div>')	
 			// for Chrome 70+: should be muted to autoplay !
 
-			peer = new Peer(mypeerid, {config: {iceServers: ice_servers}, host: peerjs_url, debug: 3, port: 443, secure: true});
+			global_peer = new Peer(mypeerid, {config: {iceServers: ice_servers}, host: peerjs_url, debug: 3, port: 443, secure: true});
 
-			console.log(peer)
+			console.log(global_peer)
 
-			makePeerHeartbeater(peer);
+			makePeerHeartbeater(global_peer);
 
-			var dataConnection = peer.connect(remotepeerid);	// to ask the remotepeer to reinitiate the connexion
+			var dataConnection = global_peer.connect(remotepeerid);	// to ask the remotepeer to reinitiate the connexion
+			
+			global_peer.on('open',  function(e)  		{ console.log('My peer ID is: ' + e);			});
+			global_peer.on('close', function(e)  		{ console.log('CLOSE: ', 			e);	});
+			global_peer.on('disconnected', function(e)  	{ console.log('DISCONNECTED: ', 		e);	});
+			global_peer.on('error', function(e) 		{ console.log('ERROR', this, e, global_peer); 		});
 
-			peer.on('error', function(err) { console.log('ERROR', this, err, peer); });
-			peer.on('open',  function(id)  { console.log('My peer ID is: ' + id);	});
-
-			peer.on('close', function(e)  { console.log('CLOSE: ' , e);	});
-			peer.on('disconnected', function(e)  { console.log('DISCONNECTED: ' , e);	});
-
-			peer.on('call', function(call) 
+			global_peer.on('call', function(call) 
 			{
 				console.log(call.peer,remotepeerid)
-				if (call.peer != remotepeerid)
+
+				if (call.peer != remotepeerid)			// guarantees the connection is 1-1
 				{
 					return false;
 				}
 
-				call.answer();	// no mediastream here -> one way only
+				call.answer();					// no mediastream here -> one way only
 				call.on('stream', function(remote_media_stream) 
 				{
 					var video 	= document.getElementById('video-'+mypeerid); 
@@ -107,8 +146,8 @@
 	{
 		switch(e.type)
 		{
-			case 'offline': $('#waiting').html('No network').addClass('blink_me').show(); break;
-			case 'online':	$('#waiting').removeClass('blink_me').hide(); location.reload();	 break;// should be more advanced, without reloading
+			case 'offline': $('#waiting').html('Waiting for network').addClass('blink_me').show(); 		break;
+			case 'online':	$('#waiting').removeClass('blink_me').hide(); location.reload();		break;	// should be more advanced, without reloading, but this is currently quite robust
 		}
 	}
 

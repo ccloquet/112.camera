@@ -4,3 +4,5 @@ real params/params.php
 real params/params.js
 *.html~
 .htaccess~
+*.css~
+*.swp

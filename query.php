@@ -19,7 +19,9 @@
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,  	false);
 		        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,  	0);
 			curl_setopt($ch, CURLOPT_POSTFIELDS,     	http_build_query($fields));
+
 			$ret 	= curl_exec($ch);
+
 			curl_close($ch);
 
 			if ($ret != null)
@@ -34,6 +36,5 @@
 	}
 
 	echo json_encode($result);
-
 	
 ?>

@@ -7,67 +7,119 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
 
-	<link href='showme.css' rel='stylesheet' />
+	<link href='css/showme.css' rel='stylesheet' />
 
 	<style>
 		body
 		{
-			overflow-x:hidden;overflow-y:hidden;font-family:"Lucida Sans Unicode", "Lucida Grande", "Arial", Helvetica, sans-serif; background-color:#05466D; color:#eeeeee; padding:0% 2.5%; height:100%;
-		 
+			overflow-x:	hidden;
+			overflow-y:	hidden;
+			font-family:	"Lucida Sans Unicode", "Lucida Grande", "Arial", Helvetica, sans-serif; 
+			background-color:#05466D; 
+			color:		#eeeeee; 
+			padding:	0% 2.5%; 
+			height:		100%;
 		}
 		.streaming_on 
 		{
-			border: 3px solid red;
-			border-radius: 10px;
+			border: 	3px solid red;
+			border-radius: 	10px;
 		}
 	
 		#userid
 		{
-			text-align:center; font-size:2.5em; width:100%;overflow: hidden;  text-overflow: ellipsis; 
-			font-family:"Lucida Sans Unicode", "Lucida Grande", "Arial", Helvetica, sans-serif;
-			background:transparent;
-			border:none;
-			border-bottom:1px solid #607d8b;
-			color:#61A0C6;
-			font-weight:normal
+			text-align:	center; 
+			font-size:	2.5em; 
+			width:		100%;
+			overflow: 	hidden;  
+			text-overflow: 	ellipsis; 
+			font-family:	"Lucida Sans Unicode", "Lucida Grande", "Arial", Helvetica, sans-serif;
+			background:	transparent;
+			border:		none;
+			border-bottom:	1px solid #607d8b;
+			color:		#61A0C6;
+			font-weight:	normal
 		}
 	</style>
 
-	<script	src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.18/peer.min.js"></script>
-	<script src='showme.js?a=6'></script>
-	<script src='params.js?a=6'></script>
+	<script	src="lib/jquery-3.3.1.js?a=8"	></script>
+	<script src="lib/peerjs-0.3.18.js?a=8"	></script>
+	<script src='lib/showme.js?a=8'		></script>
+	<script src='params.js?a=8'		></script>
 </head>
+
 <body>
 	<center>
-
-	<div id='config'>
-		<div style='font-weight:normal; margin-top:1.5em'><b style='margin-bottom:.5em'>Help the 112 to 📷  through a 🔗</b><br><br>Enter your ✆ number:</div><br>
-
-		<input id='userid' type='tel'  autofocus> 
-		<br>
-		<br>
-		<div style='font-size:2em;border-radius:5px;padding:.1em;background:#AA2900;color:#61A0C6;' onclick='peer_init()'>GO</div><br> 
-	</div>
-	<div id='text_for_112' style='color:#607d8b'>DEMO ONLY - NOT FOR REAL USE<br>I UNDERSTAND THE RISKS</div>
+		<div id='config'>
+			<div style='font-weight:normal; margin-top:1.5em'><b style='margin-bottom:.5em'>
+				Help the 112 to 📷  through a 🔗</b><br><br>Enter your ✆ number:
+			</div>
+			<br>
 	
-	<br>
-	<video height="350" autoplay muted="muted" id="video-0" style="border-radius:10px; display:none"></video><br> <!-- VIDEO ELEMENT FOR WEBRTC -->
-	<div id='red_dot' class='blink_me' style='position:fixed; top:3.7em; right:1.5em; font-size:3em;margin-top:-2em;color:red;display:none'>&#9679;</div>	
-	<div id='stop_video' style='position:fixed; bottom:1em; right:0; left:0; text-align:center; display:none'>To stop video: reload the page or close the browser</div>
+			<input id='userid' type='tel'  autofocus> 
+			<br>
+			<br>
+			<div style='font-size:2em;border-radius:5px;padding:.1em;background:#AA2900;color:#61A0C6;' id='go'>GO</div><br> 
+		</div>
+		<div id='text_for_112' style='color:#607d8b'>DEMO ONLY - NOT FOR REAL USE<br>I UNDERSTAND THE RISKS</div>
+		<br>
+		<video height="350" autoplay muted="muted" id="video-0" style="border-radius:10px; display:none"></video><br> <!-- VIDEO ELEMENT FOR WEBRTC -->
+		<div id='red_dot' class='blink_me' style='position:fixed; top:3.7em; right:1.5em; font-size:3em;margin-top:-2em;color:red;display:none'>&#9679;</div>	
+		<div id='stop_video' style='position:fixed; bottom:1em; right:0; left:0; text-align:center; display:none'>To stop video: close the page</div>
 	</center>
-	<div class='center-div blink_me' id='waiting' style='display:none'>WAITING FOR CONNEXION</div>
 
-	
+	<div class='center-div blink_me' id='waiting' style='display:none'>
+		CONNECTING...
+	</div>
+
 	<script>
- 
-	var peer         = null;
-	var video 	 = document.querySelector('video');
 
-	// function: initialize peer & mediastream
-	function peer_init()
+	/*
+		[url]?id=123456789	  		: prefills the number
+		[url]?id=123456789&auto=1		: prefills the number & initiates the connection immediately
+		[url]?id=123456789&auto=1&ts=99999999	: prefills the number & initiates the connection immediately, but not later than epoch 99999999
+	*/
+ 
+	var params 		= get_params();
+
+	var global_peer		= null;					// later, should be an array
+	var global_video 	= document.querySelector('video');
+
+	// on click on #go -> initializes the stream
+	$('#go').click(function()
+			{
+				peer_init(false);
+			});
+
+	// ---------------------------------------------------------------
+	// 1. check if should pre-fill the id and/or launch automatically
+	// ---------------------------------------------------------------
+	if (params.id != null)	
+	{
+		$('#userid').val(parseInt(params.id));
+
+		if (params.auto != null)
+		{
+			if (params.auto == 1)
+			{
+				if 	(params.ts == null) 			peer_init(true);			// if no timestamp, initiates the connection
+				else if (params.ts > Date.now() - 300000)	peer_init(true);			// if a timestamp, initiates the connection only if not expired
+				else	history.pushState({ }, 'Poppy Alert', location.origin + '?id='+params.id);	// if expired, rewrites so that to avoid that an old reconnection link triggers the streaming again
+			}
+		}
+	}
+
+	// -------------------------------------------------------------
+	// 2. initialize peer & mediastream
+	// -------------------------------------------------------------
+	function peer_init(auto)
 	{	
-		var userid       = parseInt($('#userid').val()); 
+		if (!hasGetUserMedia()) 
+		{
+			return false;
+		}
+
+		var userid = parseInt($('#userid').val()); 
 
 		if (!validate_userid(userid)) 
 		{
@@ -75,20 +127,26 @@
 			return false;
 		}
 
-		$('#config').slideUp(1500, function()
+		if (auto)	
 		{
-			$('#text_for_112').html('<br>Ask the 112 operator to connect on<br><b>' + location.href.replace('https://', '') + userid +'</b>').css('color', 'white')
-			$('#waiting').fadeIn()
-		})
-		
-		var mypeerid     = userid + '-1'	 
-		var remotepeerid = userid + '-0'	
-
-		
-		if (!hasGetUserMedia()) 
-		{
-			return false;
+			$('#config').hide(); 
+			go(userid);
 		}
+		else	
+		{	// animate
+			$('#config').slideUp(1500, function(){go(userid)});
+		}
+
+		function go(myuserid)
+		{
+			var url_to_connect = location.origin.replace('https://', '') + '/' + myuserid ;
+
+			$('#text_for_112').html('<br>Ask the 112 call taker to connect on<br><b>' + url_to_connect +'</b>').css('color', 'white')
+			$('#waiting').fadeIn()
+		}
+		
+		var mypeerid     = userid + '-1';	// the citizen (me)
+		var remotepeerid = userid + '-00'; 	// the call takers
 
 		$.post(	'query.php', 
 			{
@@ -96,83 +154,96 @@
 			},						
 			function(e)					
 			{ 
-				var ice_servers 	= e.ice_servers	
 				var connexion_timeout 	= null;
-				peer_loop()
+				var ice_servers 	= e.ice_servers; // TODO: validate
+
+				peer_loop(ice_servers)
+
+				function peer_loop(my_ice_servers)
+				{
+					global_peer = new Peer(mypeerid, {config: {iceServers: my_ice_servers}, host:peerjs_url, debug:3, port: 443, secure:true} );
+
+					// to reconnect when has been disconnected: the remote peer send a data connection request -> reconnect
+					global_peer.on('connection', reconnect)
+
+					var heartbeater = makePeerHeartbeater( global_peer );
+
+					//console.log(global_peer)
+
+					global_video.classList.remove("streaming_on")
+
+					$('#red_dot').hide()
+
+					if (connexion_timeout != null) 
+					{
+						clearTimeout(connexion_timeout);
+					}
+
+					global_peer.on('open',  	function(e)	{ console.log('My peer ID is: ' + e); 	});
+					global_peer.on('close', 	function(e)	{ console.log('CLOSE: ' , e);		});
+					global_peer.on('disconnected',	function(e)  	{ console.log('DISCONNECTED: ' , e);	});
+
+					global_peer.on('error', 	function(e) 
+					{
+						switch(e.type)
+						{
+							case 'peer-unavailable':
+								reconnect()
+								break;
+							default:
+								console.log(e.type)
+								error_msg()
+								stop_connect()
+						}
+					});
+
+					navigator.mediaDevices.getUserMedia({video: { facingMode: "environment" }, audio:true})
+					.then(function(my_media_stream) 
+					{
+						global_video.srcObject  = my_media_stream;
+						var call 	  	= global_peer.call(remotepeerid,  my_media_stream);	
+						connexion_timeout 	= setTimeout(function()
+									{
+										clearTimeout(connexion_timeout); connexion_timeout = null; 
+										global_video.classList.add("streaming_on"); 
+										$('#red_dot').show(); 
+										$('#video-0').show(); 
+										$('#stop_video').fadeIn(); 
+										$('#waiting').hide()
+									}, 7000);
+					})
+					.catch(function(e) 
+					{
+						console.log('ERROR', e)
+						stop_connect()
+					});
+
+					function stop_connect()
+					{
+						peer_destroy(global_peer, global_video, function(){global_peer=null; global_video.classList.remove("streaming_on"); $('#red_dot').hide(); })
+					}
+
+					function reconnect()
+					{
+						peer_destroy(global_peer, global_video, function(){global_peer=null; global_video.classList.remove("streaming_on"); $('#red_dot').hide(); setTimeout(function(){peer_loop(my_ice_servers)},1000); })
+					}
+				}
  
-			 	function peer_loop()
-				{
-
-				peer = new Peer(mypeerid, {config: {iceServers: e.ice_servers}, host:peerjs_url, debug:3, port: 443, secure:true} );
-
-				// to reconnect when the peer has been disconnected
-				peer.on('connection', reconnect)
-
-				var heartbeater = makePeerHeartbeater( peer );
-
-				//console.log(peer)
-
-				video.classList.remove("streaming_on")
-				$('#red_dot').hide()
-				if (connexion_timeout != null) clearTimeout(connexion_timeout)
-
-				peer.on('open',  function(id)  
-				{
-					console.log('My peer ID is: ' + id); 
-				});
-
-				peer.on('error', function(err) 
-				{
-					switch(err.type)
-					{
-						case 'peer-unavailable':
-							peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide(); setTimeout(peer_loop, 1000); })
-							break;
-						default:
-							error_msg()
-							peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide();  })
-							
-					}
-							
-				});
-
-				navigator.mediaDevices.getUserMedia({video: { facingMode: "environment" }, audio:true})
-				.then(function(my_media_stream) 
-				{
-					video.srcObject   = my_media_stream
-					var call 	  = peer.call(remotepeerid,  my_media_stream);	
-					connexion_timeout = setTimeout(function(){ clearTimeout(connexion_timeout); connexion_timeout = null; video.classList.add("streaming_on"); $('#red_dot').show(); $('#video-0').show(); $('#stop_video').fadeIn(); $('#waiting').hide()}, 7000) 
-				 
-				})
-				.catch(function(err) 
-				{
-					console.log('ERROR', err)
-					peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide()})
-				});
-
-				function reconnect()
-				{
-					peer_destroy(function(){video.classList.remove("streaming_on"); $('#red_dot').hide(); setTimeout(peer_loop, 1000); })
-				}
-
-				/*function networkChange(e) 
-				{
-					switch(e.type)
-					{
-						case 'offline': $('#waiting').html('No network').addClass('blink_me').show(); 	 break;	// should also handle the case where is waiting for connexion -> no network -> again waiting
-						case 'online':	$('#waiting').removeClass('blink_me').hide(); reconnect();	 break; // reconnect is out of scope -> easyest : reload the page, with the curent number in localStorage (anyway) & immediatestart = 1 + /reset
-					}
-				}
-	
-				// Update the online status icon based on connectivity
-				this.addEventListener('online',  networkChange);
-				this.addEventListener('offline', networkChange);*/
-
-				}
-
-				
-
 			}, 'json');
+
+			function networkChange(e) 
+			{
+				switch(e.type)
+				{
+					case 'offline': $('#waiting').html('Waiting for network').addClass('blink_me').show(); 	 				     break;	// should also handle the case where is waiting for connexion -> no network -> again waiting
+					case 'online':	setTimeout(function(){location.href=location.origin + '/?id=' + userid + "&auto=1&ts="+Date.now();}, 45000); break; 	// easyest: reload the page. all my other more subtle attempts have failed 
+																						// timeout: server needs time to clean the id
+																						// ok for demo, but in production, should be better -- instataneous, not 45 sec wait...
+				}
+			}
+	
+			this.addEventListener('online',  networkChange);
+			this.addEventListener('offline', networkChange);
 	}
 	</script>
     </body>
