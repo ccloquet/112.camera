@@ -2,7 +2,50 @@
 
 	require_once ('params.php');
 
-	$result = [];
+	$result  				= [];
+	$Ymd     				= date("Ymd");
+	$logname 				= $Ymd .'.log';
+	$remoteip 				= $_SERVER['REMOTE_ADDR'];
+
+ 	// --------------------------------------------------------------------------------------------
+	// SECURITY - if the ip is in the blacklist, do not grant the ICE servers
+ 	// --------------------------------------------------------------------------------------------
+	if (in_array($remoteip, $blacklist))
+	{
+		exit_error($logname, 'error');
+	}
+
+ 	// --------------------------------------------------------------------------------------------
+	// SECURITY - if not in the white list, throttle
+ 	// --------------------------------------------------------------------------------------------
+	if (!in_array($remoteip, $whitelist))
+	{
+		// if too many connections for this ip today, do not grant the
+		$csv 	  = array_map( function($input){ return str_getcsv($input, '#');}, file($logname));
+		$attempts = 0;
+
+		foreach ($csv as $row) 
+		{
+			if (trim($row[2]) == $remoteip)
+			{
+				++$attempts;
+			}
+		}
+
+		if ($attemps  > 3)
+		{
+			log_attempt($logname, 'THIRD_TODAY');
+		}
+	
+		if ($attempts > MAX_ATTEMPTS_PER_IP_PER_24_HOURS) 
+		{
+			exit_error($logname, 'too_many_attempts');
+		}
+	}
+
+ 	// --------------------------------------------------------------------------------------------
+	// CORE of the query
+ 	// --------------------------------------------------------------------------------------------
 
 	switch($_POST['action'])
 	{
@@ -28,13 +71,41 @@
 			{
 				$ret    = json_decode($ret, true);
 				$result = ['ice_servers' => $ret["ice_servers"]];
+				exit_ok($logname, $result);
 			}
+			else
+			{
+				exit_error($logname, 'unknown_error');
+			}
+			
 		break;
 	 
 		default:
-			$result = ['message'=>'error'];
+			 exit_error($logname, 'unknown_action');
 	}
 
-	echo json_encode($result);
+ 	// --------------------------------------------------------------------------------------------
+	// SECURITY -- log and report
+ 	// --------------------------------------------------------------------------------------------
+	function log_attempt($logname, $result_txt)
+	{
+		file_get_contents(EMAIL_WEBHOOK . '?value1='.$result_txt);	// to get notified very easily -- not a way to production...
+		error_log(time() . ' # ' . date("Y-m-d H:i:s") . ' # ' . $_SERVER['REMOTE_ADDR'] . ' # ' . $_SERVER['REMOTE_HOST'] . ' # ' . $_SERVER['HTTP_USER_AGENT'] . ' # ' . $result_txt . PHP_EOL, 3, $logname);	 
+	}
+
+ 	// --------------------------------------------------------------------------------------------
+	// exit functions
+ 	// --------------------------------------------------------------------------------------------
+	function exit_error($logname, $error_txt)
+	{
+		log_attempt($logname, 'REFUSED');
+		die(json_encode( ['message'=>$error_txt]));
+	}
+
+	function exit_ok($logname, $result)
+	{
+		log_attempt($logname, 'GRANTED');
+		die(json_encode($result));
+	}
 	
 ?>

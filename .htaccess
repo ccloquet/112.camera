@@ -12,8 +12,16 @@ RewriteRule ^(.*)$ /psap.html?/$1 [L,QSA]
 
 
 # Use HTTP Strict Transport Security to force client to use secure connections only
-<ifModule mod_headers.c>
+<IfModule mod_headers.c>
         Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
-</ifModule>
+</IfModule>
 
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-cache, no-store, must-revalidate"
+  Header set Pragma "no-cache"
+  Header set Expires 0
+</IfModule>
 
+<FilesMatch "\.(log)$">
+Require all denied
+</FilesMatch>

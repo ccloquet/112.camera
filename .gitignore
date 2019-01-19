@@ -6,3 +6,4 @@ real params/params.js
 .htaccess~
 *.css~
 *.swp
+*.php~
