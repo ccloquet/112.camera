@@ -61,7 +61,7 @@
 			<br>
 			<div style='font-size:2em;border-radius:5px;padding:.1em;background:#AA2900;color:#61A0C6;' id='go'>GO</div><br> 
 		</div>
-		<div id='text_for_112' style='color:#607d8b'>DEMO ONLY - NOT FOR REAL USE<br>I UNDERSTAND THE RISKS</div>
+		<div id='text_for_112' style='color:#607d8b'>DEMO ONLY - NOT FOR REAL USE<br>I UNDERSTAND THE RISKS<br>After clicking on GO, your IP adress & browser identification will be recorded for security & development purposes and retained, during max 1 year. The images are never stored. Check <a href='https://docs.my-poppy.eu/privacy_poppy.html' style="color:#607d83">here</a> our privacy policy</div>
 		<br>
 		<video height="350" autoplay muted="muted" id="video-0" style="border-radius:10px; display:none"></video><br> <!-- VIDEO ELEMENT FOR WEBRTC -->
 		<div id='red_dot' class='blink_me' style='position:fixed; top:3.7em; right:1.5em; font-size:3em;margin-top:-2em;color:red;display:none'>&#9679;</div>	
@@ -155,9 +155,23 @@
 			function(e)					
 			{ 
 				var connexion_timeout 	= null;
-				var ice_servers 	= e.ice_servers; // TODO: validate
+				var ice_servers         = null;
 
-				peer_loop(ice_servers)
+				if (e.ice_servers != null)
+				{
+					ice_servers 	= e.ice_servers; // TODO: validate
+					peer_loop(ice_servers)
+				}
+
+				if (e.message != null)
+				{
+					switch(e.message)
+					{
+						case 'too_many_attempts':	error_msg('The daily limit has been exceeded. Please mail us at info@my-poppy.eu to expand it.');	break;
+						case 'unknown_action':		error_msg('Unknown action');										break;
+						default:			error_msg('Unknown error');										break;
+					}
+				}
 
 				function peer_loop(my_ice_servers)
 				{

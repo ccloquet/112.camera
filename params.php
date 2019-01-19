@@ -7,6 +7,7 @@
 	define('EMAIL_WEBHOOK', 			'***');	// for reporting
 
 	$blacklist 					= [];	// a list of ipv4 ips to ban - blacklist take the precedence on whitelist
-	$whitelist 					= [];	// a list of ipv4 ips to allow anyway
+	$whitelist 					= [];   // a list of ipv4 ips to ban - blacklist take the precedence on whitelist, whitelist takes the precedence over the throttling
+	
  
 ?>

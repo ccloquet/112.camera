@@ -77,7 +77,22 @@
 	var query_php    = 'query.php';
 	var global_peer	 = null		
 
-	init(userid)
+	// ask for privacy, but max once a day
+	var goLS = false;
+	if 	(localStorage.getItem('POPPY_DT') === null) 			goLS = true;
+	else if (localStorage.getItem('POPPY_DT') < Date.now()-24*3600*1000)	goLS = true;
+
+	if (goLS)
+	{
+		var yesno = window.confirm('After clicking on OK, your IP adress & browser identification will be recorded for security & development purposes and retained during max 1 year. The images are never stored. Privacy policy: docs.my-poppy.eu/privacy_poppy.html. Click on Cancel to exit without your data being recorded.');
+		init(userid);
+	}
+	else
+	{
+		init(userid);
+	}
+
+	localStorage.setItem('POPPY_DT', Date.now());
 
 	function init(userid)
 	{	
