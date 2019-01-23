@@ -1,7 +1,7 @@
 # 112.camera
 A very simple way for citizens to stream pictures to the 112 PSAP's. Demo: https://112.camera
 
-This is only intended for test & demo purposes. [github.com/ccloquet/showme](https://github.com/ccloquet/showme), or a complete integration in existing tools would be better alternatives (easier fot the citizens & the dispatchers).
+This is only intended for test & demo purposes. [github.com/ccloquet/showme](https://github.com/ccloquet/showme), or a complete integration in existing tools would be better alternatives (easier for the citizens & the dispatchers).
 
 Don't have a server? Fork it & host the static files on Github and the php code on [fortrabbit.com](https://www.fortrabbit.com) or, eg., Heroku.
 
