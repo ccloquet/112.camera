@@ -1,21 +1,23 @@
 # 112.camera
-A very simple way for citizens to stream pictures to the 112 PSAP's
+A very simple way for citizens to stream pictures to the 112 PSAP's. Demo: https://112.camera
 
-This is only intended for test & demo purposes. https://github.com/ccloquet/showme, or a complete integration in existing tools would be better alternatives (easier fot the citizens & the dispatchers).
+This is only intended for test & demo purposes. [github.com/ccloquet/showme](https://github.com/ccloquet/showme), or a complete integration in existing tools would be better alternatives (easier fot the citizens & the dispatchers).
+
+Don't have a server? Fork it & host the static files on Github and the php code on [fortrabbit.com](https://www.fortrabbit.com) or, eg., Heroku.
 
 __Working__
 
 The citizen (most probably a trained citizen) 
 
 1. calls the 112/911 and describes his/her emergency situation
-2. tells the dispatch that a live streaming will be available from 112.camera/his-her-phone-number (eg: 112.camera/123456789)
-3. opens 112.camera.
+2. tells the dispatch that a live streaming will be available from 112.camera/his-her-phone-number (eg: [112.camera/123456789](https://112.camera/123456789)
+3. opens [112.camera](https://112.camera).
 4. enters his/her phone number in international format.
 5. presses on GO.
 
 The PSAP
 
-6. opens 112.camera/the-phone-number (eg: 112.camera/123456789)
+6. opens 112.camera/the-phone-number (eg: [112.camera/123456789](https://112.camera/123456789))
 
 __Installation__
 
@@ -27,7 +29,7 @@ __Installation__
 
 - a Peer Server is needed to use the video set up. You can deploy yours on Heroku using : https://elements.heroku.com/buttons/peers/peerjs-server. The cloud server provided by peerJS is not suitable as it does not support https and there is a risk of identifiers collision. The Heroku server should be dimensioned taking into account the forecasted usage.
 
-- for real world use cases, a STUN & a TURN server is needed. This example uses Twilio's. See eg: https://peerjs.com/docs/#api, https://www.avaya.com/blogs/archives/2014/08/understanding-webrtc-media-connections-ice-stun-and-turn.html & https://www.html5rocks.com/en/tutorials/webrtc/infrastructure, https://www.twilio.com/stun-turn. STUN Server usage is free, but TURN is not.
+- for real world use cases, a STUN & a TURN server is needed. This example uses Twilio's. See eg: [peerjs.com](https://peerjs.com/docs/#api), [avaya.com](https://www.avaya.com/blogs/archives/2014/08/understanding-webrtc-media-connections-ice-stun-and-turn.html) & [html5rocks.com/en/tutorials/webrtc](https://www.html5rocks.com/en/tutorials/webrtc/infrastructure), [twilio.com](https://www.twilio.com/stun-turn). STUN Server usage is free, but TURN is not.
 
 __Current structure__
 
