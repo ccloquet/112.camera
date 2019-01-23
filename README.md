@@ -41,10 +41,6 @@ __Current structure__
  - .htaccess routes to iam.html or psap.html depending wether or not there is a number after the domain name:
    - 112.camera/ -> iam.html
    - 112.camera/123456789 -> psap.html
- 
- __Dependencies__ (automaticallly loaded from CDN)
-  - peerjs
-  - jQuery
-  - fontAwesome
+ - /lib contains the dependencies
  
 See discussions on https://github.com/ccloquet/showme for non-technical issues
