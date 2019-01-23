@@ -6,6 +6,7 @@ This is only intended for test & demo purposes. https://github.com/ccloquet/show
 __Working__
 
 The citizen (most probably a trained citizen) 
+
 1. calls the 112/911 and describes his/her emergency situation
 2. tells the dispatch that a live streaming will be available from 112.camera/his-her-phone-number (eg: 112.camera/123456789)
 3. opens 112.camera.
@@ -13,7 +14,8 @@ The citizen (most probably a trained citizen)
 5. presses on GO.
 
 The PSAP
-6. opens 112.camera/his-hier phone-number (eg: 112.camera/123456789)
+
+6. opens 112.camera/the-phone-number (eg: 112.camera/123456789)
 
 __Installation__
 
