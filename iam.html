@@ -104,7 +104,7 @@
 			{
 				if 	(params.ts == null) 			peer_init(true);			// if no timestamp, initiates the connection
 				else if (params.ts > Date.now() - 300000)	peer_init(true);			// if a timestamp, initiates the connection only if not expired
-				else	history.pushState({ }, 'Poppy Alert', location.origin + '?id='+params.id);	// if expired, rewrites so that to avoid that an old reconnection link triggers the streaming again
+				else	history.pushState({ }, '112.camera', location.origin + '?id='+params.id);	// if expired, rewrites so that to avoid that an old reconnection link triggers the streaming again
 			}
 		}
 	}
