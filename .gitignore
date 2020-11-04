@@ -7,3 +7,4 @@ real params/params.js
 *.css~
 *.swp
 *.php~
+log.txt
